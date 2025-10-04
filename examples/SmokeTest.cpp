@@ -39,12 +39,11 @@ int main() {
     for (int i = 0; i < 65536; i++) {
         constantChunk.append("a", 1);
     }
-
-    uWS::SSLApp({
-      .key_file_name = "misc/key.pem",
-      .cert_file_name = "misc/cert.pem",
-      .passphrase = "1234"
-    }).get("/*", [](auto *res, auto */*req*/) {
+    uWS::SocketContextOptions ctx;
+    ctx.key_file_name = "misc/key.pem";
+    ctx.cert_file_name = "misc/cert.pem";
+    ctx.passphrase = "1234";
+    uWS::SSLApp(ctx).get("/*", [](auto *res, auto */*req*/) {
 
         auto stream = std::make_shared<Stream>(0, false);
         streamData(res, stream, 0);

@@ -5,19 +5,20 @@
 #include <iostream>
 
 int main() {
-    uWS::WebSocketClientBehavior sb;
-    sb.open = [](/*auto *ws*/) {
+    uWS::WebSocketClientBehavior b;
+    b.open = [](/*auto *ws*/) {
         std::cout << "Hello and welcome to client" << std::endl;
         };
-    sb.message = [](/*auto *ws, auto message*/) {
-
+    b.message = [](/*auto *ws, auto message*/) {
+        std::cout << "got message" << std::endl;
         };
-    sb.close = [](/*auto *ws*/) {
+    b.close = [](/*auto *ws*/) {
         std::cout << "bye" << std::endl;
         };
-    uWS::ClientApp app(std::move(sb));
-    
-    app.connect("ws://localhost:3000", "protocol");
-    
+    uWS::ClientApp app(std::move(b));
+
+    //app.connect("ws://localhost:9000", "protocol");
+    app.connect("ws://localhost:9000");
+
     app.run();
 }

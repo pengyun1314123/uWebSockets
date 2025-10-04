@@ -2,12 +2,12 @@
 #include "LocalCluster.h"
 
 int main() {
+    uWS::SocketContextOptions ctx;
+    ctx.key_file_name = "misc/key.pem";
+    ctx.cert_file_name = "misc/cert.pem";
+    ctx.passphrase = "1234";
     /* Note that SSL is disabled unless you build with WITH_OPENSSL=1 */
-    uWS::LocalCluster({
-        .key_file_name = "misc/key.pem",
-        .cert_file_name = "misc/cert.pem",
-        .passphrase = "1234"
-    },
+    uWS::LocalCluster(ctx,
     [](uWS::SSLApp &app) {
         /* Here this App instance is defined */
         app.get("/*", [](auto *res, auto * /*req*/) {

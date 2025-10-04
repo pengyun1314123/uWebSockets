@@ -31,12 +31,12 @@ uint32_t crc32(const char *s, size_t n, uint32_t crc = 0xFFFFFFFF) {
 }
 
 int main() {
-
-    uWS::SSLApp({
-      .key_file_name = "misc/key.pem",
-      .cert_file_name = "misc/cert.pem",
-      .passphrase = "1234"
-    }).post("/*", [](auto *res, auto *req) {
+    uWS::SocketContextOptions ctx;
+    ctx.key_file_name = "misc/key.pem";
+    ctx.cert_file_name = "misc/cert.pem";
+    ctx.passphrase = "1234";
+    
+    uWS::SSLApp(ctx).post("/*", [](auto *res, auto *req) {
 
         /* Display the headers */
         std::cout << " --- " << req->getUrl() << " --- " << std::endl;

@@ -87,7 +87,7 @@ void load_files(const std::string& root, int inotify_fd = -1) {
     fileSizes = 0;
     std::unordered_map<std::string, std::pair<std::string, bool>, StringViewHasher, StringViewEqual> new_map;
     for (const auto& entry : std::filesystem::recursive_directory_iterator(root)) {
-        if (entry.is_regular_file() && !entry.path().filename().string().starts_with(".")) {
+        if (entry.is_regular_file() && !entry.path().filename().string()._Starts_with(".")) {
             std::string relative_path = "/" + std::filesystem::relative(entry.path(), root).generic_string();
             auto [content, compressed] = load_file_content(entry.path());
             new_map[relative_path] = {content, compressed};
@@ -168,7 +168,7 @@ int main(int argc, char** argv) {
     });
 
     app.get("/", [](auto* res, auto* req) {
-        auto it = file_map.find(std::string_view("/index.html", 11));
+        auto it = file_map.find(std::string("/index.html", 11));
         if (it != file_map.end()) {
             if (it->second.second) {
                 res->writeHeader("Content-Encoding", "gzip");
@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
     });
 
     app.get("/*", [](auto* res, auto* req) {
-        auto it = file_map.find(req->getUrl());
+        auto it = file_map.find(std::string(req->getUrl()));
         if (it != file_map.end()) {
             if (it->second.second) {
                 res->writeHeader("Content-Encoding", "gzip");

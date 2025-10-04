@@ -3,12 +3,14 @@
 /* Note that uWS::SSLApp({options}) is the same as uWS::App() when compiled without SSL support */
 
 int main() {
+
+    uWS::SocketContextOptions ctx;
+    ctx.key_file_name = "misc/key.pem";
+    ctx.cert_file_name = "misc/cert.pem";
+    ctx.passphrase = "1234";
+
     /* Overly simple hello world app */
-    uWS::SSLApp({
-      .key_file_name = "misc/key.pem",
-      .cert_file_name = "misc/cert.pem",
-      .passphrase = "1234"
-    }).get("/:first/static/:second", [](auto *res, auto *req) {
+    uWS::SSLApp(ctx).get("/:first/static/:second", [](auto *res, auto *req) {
 
         res->write("<h1>first is: ");
         res->write(req->getParameter("first"));

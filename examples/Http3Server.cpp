@@ -20,13 +20,15 @@ int main() {
         return 0;
     }
 
+    uWS::SocketContextOptions ctx;
+    ctx.key_file_name = "misc/key.pem";
+    ctx.cert_file_name = "misc/cert.pem";
+    ctx.passphrase = "1234";
+    //uWS::SSLApp::WebSocketBehavior<PerSocketData> sb;
+
     /* We need a bootstrapping server that instructs
      * the web browser to use HTTP3 */
-    (*new uWS::SSLApp({
-      .key_file_name = "misc/key.pem",
-      .cert_file_name = "misc/cert.pem",
-      .passphrase = "1234"
-    })).get("/*", [&buffer](auto *res, auto *req) {
+    (*new uWS::SSLApp(ctx)).get("/*", [&buffer](auto *res, auto *req) {
         res->writeHeader("Alt-Svc", "h3=\":9004\"");
         res->writeHeader("Alternative-Protocol", "quic:9004");
         res->end("<html><h1>This is not HTTP3! Try refreshing (works in Firefox!)</h1></html>");
@@ -37,11 +39,7 @@ int main() {
     });
 
     /* And we serve the video over HTTP3 */
-    uWS::H3App({
-      .key_file_name = "misc/key.pem",
-      .cert_file_name = "misc/cert.pem",
-      .passphrase = "1234"
-    }).get("/*", [&buffer](auto *res, auto *req) {
+    uWS::H3App(ctx).get("/*", [&buffer](auto *res, auto *req) {
         res->end("<html><h1>Welcome to HTTP3! <a href=\"video.mp4\">Go see a movie</a></html></h1>");
     }).get("/video.mp4", [&buffer](auto *res, auto *req) {
         /* Send back a video */

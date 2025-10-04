@@ -14,44 +14,46 @@ int main() {
         /* Fill with user data */
     };
 
+    uWS::SocketContextOptions ctx;
+    ctx.key_file_name = "misc/key.pem";
+    ctx.cert_file_name = "misc/cert.pem";
+    ctx.passphrase = "1234";
+    ctx.dh_params_file_name = "misc/dhparams.pem";
+    uWS::SSLApp::WebSocketBehavior<PerSocketData> sb;
+	sb.compression = uWS::SHARED_COMPRESSOR;
+    sb.compression = uWS::SHARED_COMPRESSOR;
+    sb.maxPayloadLength = 16 * 1024 * 1024;
+    sb.idleTimeout = 16;
+    sb.maxBackpressure = 1 * 1024 * 1024;
+    sb.closeOnBackpressureLimit = false;
+    sb.resetIdleTimeoutOnSend = false;
+    sb.sendPingsAutomatically = true;
+        /* Handlers */
+    sb.upgrade = nullptr;
+    sb.open = [](auto* ws) {
+        /* Open event here, you may access ws->getUserData() which points to a PerSocketData struct */
+        ws->subscribe("broadcast");
+        };
+    sb.message = [](auto*/*ws*/, std::string_view /*message*/, uWS::OpCode /*opCode*/) {
+
+        };
+    sb.drain = [](auto*/*ws*/) {
+        /* Check ws->getBufferedAmount() here */
+        };
+    sb.ping = [](auto*/*ws*/, std::string_view) {
+        /* Not implemented yet */
+        };
+    sb.pong = [](auto*/*ws*/, std::string_view) {
+        /* Not implemented yet */
+        };
+    sb.close = [](auto*/*ws*/, int /*code*/, std::string_view /*message*/) {
+        /* You may access ws->getUserData() here */
+        };
     /* Keep in mind that uWS::SSLApp({options}) is the same as uWS::App() when compiled without SSL support.
      * You may swap to using uWS:App() if you don't need SSL */
-    uWS::SSLApp app = uWS::SSLApp({
-        /* There are example certificates in uWebSockets.js repo */
-        .key_file_name = "misc/key.pem",
-        .cert_file_name = "misc/cert.pem",
-        .passphrase = "1234"
-    }).ws<PerSocketData>("/*", {
-        /* Settings */
-        .compression = uWS::SHARED_COMPRESSOR,
-        .maxPayloadLength = 16 * 1024 * 1024,
-        .idleTimeout = 16,
-        .maxBackpressure = 1 * 1024 * 1024,
-        .closeOnBackpressureLimit = false,
-        .resetIdleTimeoutOnSend = false,
-        .sendPingsAutomatically = true,
-        /* Handlers */
-        .upgrade = nullptr,
-        .open = [](auto *ws) {
-            /* Open event here, you may access ws->getUserData() which points to a PerSocketData struct */
-            ws->subscribe("broadcast");
-        },
-        .message = [](auto */*ws*/, std::string_view /*message*/, uWS::OpCode /*opCode*/) {
-
-        },
-        .drain = [](auto */*ws*/) {
-            /* Check ws->getBufferedAmount() here */
-        },
-        .ping = [](auto */*ws*/, std::string_view) {
-            /* Not implemented yet */
-        },
-        .pong = [](auto */*ws*/, std::string_view) {
-            /* Not implemented yet */
-        },
-        .close = [](auto */*ws*/, int /*code*/, std::string_view /*message*/) {
-            /* You may access ws->getUserData() here */
-        }
-    }).listen(9001, [](auto *listen_socket) {
+    uWS::SSLApp app = uWS::SSLApp(ctx);
+    app.ws<PerSocketData>("/*", std::move(sb));
+    app.listen(9001, [](auto* listen_socket) {
         if (listen_socket) {
             std::cout << "Listening on port " << 9001 << std::endl;
         }
